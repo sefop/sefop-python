@@ -69,7 +69,23 @@ Rules:
 
 - One test file per production file — never combine tests for multiple modules into a single file.
 - Mirror the production directory structure under `tests/`.
-- 
+- **Do not group tests inside classes.** Write every test as a standalone top-level function.
+  Pytest discovers functions directly; classes add indirection without any benefit for pure unit
+  tests. Use fixtures (see section 7) instead of `setUp`/`tearDown` methods.
+
+```python
+# Bad — unnecessary class wrapper
+class TestProduct:
+    def test__product__given_valid_inputs__creates_successfully(self):
+        product = Product(name="banana", price_usd=0.5, weight_kg=0.12, calories=89)
+        assert product.name == "banana"
+
+# Good — flat standalone function
+def test__product__given_valid_inputs__creates_successfully():
+    product = Product(name="banana", price_usd=0.5, weight_kg=0.12, calories=89)
+    assert product.name == "banana"
+```
+
 ---
 
 ## 4. What to test: public behavior, not implementation

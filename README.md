@@ -2,7 +2,7 @@
 
 **Reference implementation of the [SEFOP framework](https://github.com/sefop/sefop-hub) for Python**
 
-> This is the **Python implementation** of SEFOP (v1.0).
+> This is the **Python implementation** of SEFOP.
 > For the theory, motivation, and language-agnostic design of the framework, see the main repository: [github.com/fjzs/sefop](https://github.com/fjzs/sefop).
 
 ---
