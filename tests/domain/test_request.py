@@ -25,17 +25,20 @@ def test__request__given_valid_inputs__creates_successfully(banana, chips):
 
 @pytest.mark.parametrize("weight", [0, -1, -0.001])
 def test__request__given_non_positive_max_weight__raises_value_error(weight, banana):
+    # ACT / ASSERT
     with pytest.raises(ValueError, match="max_weight_kg"):
         Request(max_weight_kg=weight, max_budget_usd=10.0, products=[banana])
 
 
 @pytest.mark.parametrize("budget", [0, -1, -0.01])
 def test__request__given_non_positive_max_budget__raises_value_error(budget, banana):
+    # ACT / ASSERT
     with pytest.raises(ValueError, match="max_budget_usd"):
         Request(max_weight_kg=5.0, max_budget_usd=budget, products=[banana])
 
 
 def test__request__given_empty_products__raises_value_error():
+    # ACT / ASSERT
     with pytest.raises(ValueError, match="products"):
         Request(max_weight_kg=5.0, max_budget_usd=10.0, products=[])
 
