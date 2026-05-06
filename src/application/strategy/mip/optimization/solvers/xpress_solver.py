@@ -1,26 +1,22 @@
-"""Solver adapter that delegates to FICO Xpress.
+"""Solver adapter placeholder for FICO Xpress.
 
-Xpress is a commercial LP/MIP solver. This module is provided as a
-template showing how to add a new solver technology to the system — create
-a subclass of ``BaseTechnologySolver`` and register it in the solver
-registry in ``optimization.py``.
+This is a template showing how to add a new solver technology:
+1. Create a subclass of BaseTechnologySolver.
+2. Implement solve() using the solver's Python API.
+3. Register it in the _SOLVER_REGISTRY dict in optimization.py.
+
+TODO: implement using the xpress Python package.
 """
 
-from typing import Any
+from __future__ import annotations
 
-import pyomo.environ as pyo
-
-from app.application.strategy.mip.optimization.solvers.base_technology_solver import BaseTechnologySolver
+from application.strategy.mip.optimization.model_abstraction.model_solution import ModelSolution
+from application.strategy.mip.optimization.model_abstraction.optimization_model import OptimizationModel
+from application.strategy.mip.optimization.solvers.base_technology_solver import BaseTechnologySolver
 
 
 class XpressSolver(BaseTechnologySolver):
-    """Solver adapter for FICO Xpress.
+    """Solver adapter placeholder for FICO Xpress."""
 
-    This is a placeholder to demonstrate how easy it is to add a new
-    solver technology. Install the ``xpress`` Python package and
-    configure Pyomo to use it.
-    """
-
-    def solve(self, model: pyo.ConcreteModel) -> Any:
-        solver = pyo.SolverFactory("xpress_direct")
-        return solver.solve(model, tee=True)
+    def solve(self, model: OptimizationModel) -> ModelSolution:
+        raise NotImplementedError("XpressSolver is not yet implemented")

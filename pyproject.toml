@@ -6,6 +6,9 @@ requires-python = ">=3.12"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]  # adds src/ to sys.path, so imports start from inside src/ (e.g. "from domain.x import X", not "from src.domain.x import X")
+markers = [
+    "integration: marks tests that require an external solver (deselect with '-m not integration')",
+]
 
 [tool.black]
 line-length = 88

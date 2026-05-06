@@ -6,7 +6,7 @@ solution validation, result enrichment, rounding, or reporting without
 touching the optimizer itself.
 """
 
-from app.domain.recommendation import Recommendation
+from domain.recommendation import Recommendation
 
 
 class PostProcess:

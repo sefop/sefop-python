@@ -1,15 +1,16 @@
-"""Abstract base class (interface) that every solver adapter must implement.
+"""Abstract interface that every solver adapter must implement.
 
 The optimization orchestrator in ``optimization.py`` talks to solvers only
-through this interface. That means you can swap HiGHS for Xpress (or any
-future solver) without changing the optimization logic — just provide a new
-subclass of ``BaseTechnologySolver``.
+through this interface. That means you can swap HiGHS for any future solver
+without changing the optimization logic — just provide a new subclass.
 """
 
-from abc import ABC, abstractmethod
-from typing import Any
+from __future__ import annotations
 
-import pyomo.environ as pyo
+from abc import ABC, abstractmethod
+
+from application.strategy.mip.optimization.model_abstraction.model_solution import ModelSolution
+from application.strategy.mip.optimization.model_abstraction.optimization_model import OptimizationModel
 
 
 class BaseTechnologySolver(ABC):
@@ -17,7 +18,7 @@ class BaseTechnologySolver(ABC):
 
     Think of this as a *contract* (formally, an Abstract Base Class / ABC):
     it declares that every solver adapter **must** provide a ``solve(model)``
-    method, but it does not contain any solving logic itself. This lets the
+    method, but it contains no solving logic itself. This lets the
     optimization code call ``solver.solve(model)`` without knowing or caring
     whether the underlying engine is HiGHS, Xpress, or something else.
 
@@ -25,5 +26,12 @@ class BaseTechnologySolver(ABC):
     """
 
     @abstractmethod
-    def solve(self, model: pyo.ConcreteModel) -> Any:
-        """Solve the given Pyomo model and return the solver results."""
+    def solve(self, model: OptimizationModel) -> ModelSolution:
+        """Solve the given model and return a solution.
+
+        Args:
+            model: The solver-agnostic optimization model to solve.
+
+        Returns:
+            A ModelSolution with status and variable values (or None if infeasible).
+        """

@@ -1,44 +1,32 @@
-"""Preprocessing stage that prepares raw request data for the MIP model.
+"""Preprocessing stage that prepares request data for the MIP model.
 
-This module sits at the start of the MIP solver pipeline.  Its job is to
-partition cargo into "allowed" (eligible for optimization) and "forbidden"
-(excluded up front), and to build lookup structures the optimizer needs.
-
-Extend the PreProcess class here to add custom filtering, data enrichment,
-or parameter tuning before the model is built.
+All products are already validated by the domain layer (Request.__post_init__
+ensures positive weight, price, and calories and no duplicates), so
+preprocessing is a pass-through. This stage exists as an extension point:
+override PreProcess.run() to add enrichment or custom filtering without
+touching the optimizer.
 """
 
-from app.domain.cargo_request import CargoRequest
-from app.domain.request import Request
-from app.application.strategy.mip.preprocess.pre_processed_data import PreProcessedData
+from __future__ import annotations
+
+from application.strategy.mip.preprocess.pre_processed_data import PreProcessedData
+from domain.request import Request
 
 
 class PreProcess:
     """Preprocessing step before MIP model construction.
 
-    Override this class to add custom preprocessing logic such as
-    data enrichment, cargo filtering, or parameter tuning.
+    Default implementation: wrap the request in PreProcessedData unchanged.
+    Override to add data enrichment, filtering, or parameter tuning.
     """
 
     def run(self, request: Request) -> PreProcessedData:
-        """Partition cargo into allowed and forbidden based on validity.
+        """Wrap the request for the optimization stage.
 
-        Cargo with non-positive weight or volume is forbidden.
+        Args:
+            request: The validated knapsack request.
+
+        Returns:
+            PreProcessedData containing the request.
         """
-        cargo_map: dict[str, CargoRequest] = {}
-        allowed_ids: list[str] = []
-        forbidden_ids: list[str] = []
-
-        for cargo in request.cargo_requests:
-            cargo_map[cargo.id] = cargo
-            if cargo.weight_kg > 0 and cargo.volume_m3 > 0:
-                allowed_ids.append(cargo.id)
-            else:
-                forbidden_ids.append(cargo.id)
-
-        return PreProcessedData(
-            request=request,
-            cargo_map=cargo_map,
-            allowed_ids=allowed_ids,
-            forbidden_ids=forbidden_ids,
-        )
+        return PreProcessedData(request=request)

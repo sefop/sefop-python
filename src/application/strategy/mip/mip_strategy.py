@@ -1,23 +1,25 @@
-"""Mixed-Integer Programming (MIP) solver for cargo optimization.
+"""Mixed-Integer Programming (MIP) solver for the knapsack problem.
 
-This module contains the exact-optimization solver.  It delegates to three
+This module contains the exact-optimisation solver. It delegates to three
 internal stages — preprocess, optimize, postprocess — each of which can be
-extended independently.  When the problem is small enough for MIP to solve
-in a reasonable time, this solver is preferred because it guarantees an
-optimal (revenue-maximizing) cargo selection.
+extended independently. When the problem is small enough for MIP to solve
+in a reasonable time, this solver is preferred over the greedy heuristic
+because it guarantees an optimal (calorie-maximising) selection.
 
 It plugs into the system as one of the solver strategies that Engine can
-choose between (the other being the heuristic solver).
+choose between (the other being GreedyCalories).
 """
+
+from __future__ import annotations
 
 import logging
 
-from app.application.service.base_strategy import BaseStrategy
-from app.application.strategy.mip.optimization.optimization import Optimization
-from app.application.strategy.mip.postprocess.postprocess import PostProcess
-from app.application.strategy.mip.preprocess.preprocess import PreProcess
-from app.domain.recommendation import Recommendation
-from app.domain.request import Request
+from application.service.base_strategy import BaseStrategy
+from application.strategy.mip.optimization.optimization import Optimization
+from application.strategy.mip.postprocess.postprocess import PostProcess
+from application.strategy.mip.preprocess.preprocess import PreProcess
+from domain.recommendation import Recommendation
+from domain.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -29,35 +31,28 @@ class MipStrategy(BaseStrategy):
     All solver-technology details are encapsulated in the optimization package.
     """
 
-    def __init__(
-        self,
-        solver_technology: str = "appsi_highs",
-        export_lp: bool = False,
-        output_folder: str = "output",
-    ) -> None:
+    def __init__(self, solver_name: str = "highs") -> None:
         self._pre_process = PreProcess()
-        self._optimization = Optimization(
-            solver_name=solver_technology,
-            export_lp=export_lp,
-            output_folder=output_folder,
-        )
+        self._optimization = Optimization(solver_name=solver_name)
         self._post_process = PostProcess()
 
-    def solve(self, request: Request) -> list[Recommendation]:
-        """Run the full MIP Solver pipeline."""
+    def solve(self, request: Request) -> Recommendation | None:
+        """Run the full MIP solver pipeline.
+
+        Args:
+            request: The knapsack request to solve.
+
+        Returns:
+            The optimal Recommendation, or None if no feasible solution exists.
+        """
         # Phase 1: Preprocess
         preprocessed_data = self._pre_process.run(request)
-        if not preprocessed_data.allowed_ids:
-            logger.warning("No allowed cargo items after preprocessing")
-            return [Recommendation(
-                selected=[],
-                non_selected=list(request.cargo_requests),
-            )]
 
-        # Phase 2: Optimize (build model + solve + transform solutions to business recommendation)
+        # Phase 2: Optimize (build model → solve → extract Recommendation)
         recommendation = self._optimization.run(preprocessed_data)
         if recommendation is None:
-            return []
+            logger.warning("MIP found no feasible solution")
+            return None
 
         # Phase 3: Post-process
-        return [self._post_process.run(recommendation)]
+        return self._post_process.run(recommendation)
