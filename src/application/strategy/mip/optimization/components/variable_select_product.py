@@ -6,7 +6,7 @@ Pure Python stdlib only — no solver dependency.
 
 from __future__ import annotations
 
-from application.strategy.mip.optimization.model_abstraction.model_variable import ModelVariable
+from application.strategy.mip.optimization.model_abstraction.model_variable import ModelVariable, VarType
 from domain.request import Request
 
 
@@ -28,6 +28,6 @@ class VariableSelectProduct:
             List of integer variables with lower_bound=0 and no upper bound.
         """
         return [
-            ModelVariable(name=p.name, var_type="integer", lower_bound=0.0, upper_bound=None)
+            ModelVariable(name=p.name, var_type=VarType.INTEGER, lower_bound=0.0, upper_bound=None)
             for p in request.products
         ]

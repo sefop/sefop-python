@@ -15,7 +15,7 @@ from application.strategy.mip.optimization.components.constraint_limit_budget im
 from application.strategy.mip.optimization.components.constraint_limit_weight import ConstraintLimitWeight
 from application.strategy.mip.optimization.components.objective_calories import ObjectiveCalories
 from application.strategy.mip.optimization.components.variable_select_product import VariableSelectProduct
-from application.strategy.mip.optimization.model_abstraction.optimization_model import OptimizationModel
+from application.strategy.mip.optimization.model_abstraction.optimization_model import ObjectiveSense, OptimizationModel
 from application.strategy.mip.optimization.solvers.base_technology_solver import BaseTechnologySolver
 from application.strategy.mip.optimization.solvers.highs_solver import HighsSolver
 from application.strategy.mip.preprocess.pre_processed_data import PreProcessedData
@@ -78,7 +78,7 @@ class Optimization:
             variables=variables,
             constraints=[weight_c, budget_c],
             objective_expression=objective,
-            objective_sense="maximize",
+            objective_sense=ObjectiveSense.MAXIMIZE,
         )
 
     def _extract_recommendation(self, request, variable_values: dict[str, float]):

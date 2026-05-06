@@ -8,10 +8,18 @@ Pure Python stdlib only — no solver dependency.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 
 from application.strategy.mip.optimization.model_abstraction.linear_constraint import LinearConstraint
 from application.strategy.mip.optimization.model_abstraction.linear_expression import LinearExpression
 from application.strategy.mip.optimization.model_abstraction.model_variable import ModelVariable
+
+
+class ObjectiveSense(StrEnum):
+    """Valid optimization directions."""
+
+    MAXIMIZE = "maximize"
+    MINIMIZE = "minimize"
 
 
 @dataclass
@@ -21,11 +29,11 @@ class OptimizationModel:
     Attributes:
         variables: Decision variables that appear in constraints and objective.
         constraints: Linear constraints the solution must satisfy.
-        objective_expression: Linear expression to optimise.
-        objective_sense: ``"maximize"`` or ``"minimize"``.
+        objective_expression: Linear expression to optimize.
+        objective_sense: Optimization direction.
     """
 
     variables: list[ModelVariable]
     constraints: list[LinearConstraint]
     objective_expression: LinearExpression
-    objective_sense: str
+    objective_sense: ObjectiveSense

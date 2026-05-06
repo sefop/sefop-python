@@ -5,7 +5,7 @@ Pure Python stdlib only — no solver dependency.
 
 from __future__ import annotations
 
-from application.strategy.mip.optimization.model_abstraction.linear_constraint import LinearConstraint
+from application.strategy.mip.optimization.model_abstraction.linear_constraint import ConstraintSign, LinearConstraint
 from application.strategy.mip.optimization.model_abstraction.linear_expression import LinearExpression
 from domain.request import Request
 
@@ -30,4 +30,4 @@ class ConstraintLimitBudget:
         lhs = LinearExpression()
         for p in request.products:
             lhs.add(p.price_usd, p.name)
-        return LinearConstraint(name="budget_limit", lhs=lhs, sign="<=", rhs=request.max_budget_usd)
+        return LinearConstraint(name="budget_limit", lhs=lhs, sign=ConstraintSign.LEQ, rhs=request.max_budget_usd)

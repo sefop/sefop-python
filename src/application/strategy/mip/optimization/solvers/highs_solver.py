@@ -13,7 +13,7 @@ import logging
 import highspy
 import numpy as np
 
-from application.strategy.mip.optimization.model_abstraction.model_solution import ModelSolution
+from application.strategy.mip.optimization.model_abstraction.model_solution import ModelSolution, SolutionStatus
 from application.strategy.mip.optimization.model_abstraction.optimization_model import OptimizationModel
 from application.strategy.mip.optimization.solvers.base_technology_solver import BaseTechnologySolver
 
@@ -92,8 +92,14 @@ class HighsSolver(BaseTechnologySolver):
         logger.info("HiGHS terminated with status: %s", status)
 
         if status not in _FEASIBLE_STATUSES:
-            return ModelSolution(status=str(status), variable_values=None)
+            if status == highspy.HighsModelStatus.kInfeasible:
+                mapped_status = SolutionStatus.INFEASIBLE
+            elif status in (highspy.HighsModelStatus.kUnbounded, highspy.HighsModelStatus.kUnboundedOrInfeasible):
+                mapped_status = SolutionStatus.UNBOUNDED
+            else:
+                mapped_status = SolutionStatus.ERROR
+            return ModelSolution(status=mapped_status, variable_values=None)
 
         sol = h.getSolution()
         values = {var.name: sol.col_value[i] for i, var in enumerate(model.variables)}
-        return ModelSolution(status="optimal", variable_values=values)
+        return ModelSolution(status=SolutionStatus.OPTIMAL, variable_values=values)
