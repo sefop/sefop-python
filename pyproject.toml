@@ -1,5 +1,5 @@
 [project]
-name = "sefop-python"
+name = "sefop-python-starter"
 version = "1.0.0"
 requires-python = ">=3.12"
 
