@@ -1,6 +1,6 @@
 # SEFOP - python
 
-**Reference implementation of the [SEFOP framework](https://github.com/sefop/sefop) for Python**
+**Reference implementation of [SEFOP](https://github.com/sefop/sefop) for Python**
 
 ---
 
