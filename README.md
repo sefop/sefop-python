@@ -4,7 +4,7 @@
 
 [![License: MIT](https://opensource.org/licenses/MIT)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-93%20passing-brightgreen)](#testing)
+[![CI](https://img.shields.io/badge/CI-passing-brightgreen)](#testing)
 [![Discussions](https://img.shields.io/badge/discussions-active-blue)](https://github.com/sefop/discussions)
 
 ---
