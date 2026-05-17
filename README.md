@@ -2,10 +2,9 @@
 
 **Reference implementation of [SEFOP](https://github.com/sefop) for Python**
 
-[![License: MIT](https://opensource.org/licenses/MIT)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
 [![CI](https://img.shields.io/badge/CI-passing-brightgreen)](#testing)
-[![Discussions](https://img.shields.io/badge/discussions-active-blue)](https://github.com/sefop/discussions)
 
 ---
 
