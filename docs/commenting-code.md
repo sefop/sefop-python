@@ -330,7 +330,138 @@ class SolverConfig:
 
 ---
 
-## 8. References
+## 8. SEFOP Architecture-Aware Comments
+
+This section extends the general rules above with guidance specific to the SEFOP framework.
+Every SEFOP template is a **teaching artifact** — it must be readable by a PhD student or
+data scientist who knows optimization but may be new to software engineering patterns. Comments
+in SEFOP templates carry an extra responsibility: they must explain *why the architecture is
+designed this way*, not just what the code does.
+
+### 8.1 — File-level layer declaration
+
+Every `.py` file in a SEFOP template must begin with a module docstring that declares which
+Clean Architecture layer it belongs to and explains *why that layer exists*. This is the single
+most important comment in the file — it orients a reader who opens the file cold.
+
+```python
+"""
+LAYER: Application — Port (Abstract Interface)
+
+WHY THIS LAYER EXISTS:
+    The application layer defines *what* the system needs without knowing *how* those needs
+    are fulfilled. A port is a contract: 'I need something that can solve an optimization
+    problem; I do not care whether it uses HiGHS, Gurobi, or any other solver.'
+
+    By depending only on this interface, the application layer stays completely independent
+    from third-party solver libraries. You can swap the solver by changing one line in the
+    controller — no business logic changes.
+
+WHERE THE IMPLEMENTATION LIVES:
+    Concrete implementations (adapters) live in src/infrastructure/.
+    The controller wires the adapter to this port at startup.
+"""
+```
+
+Use the following layer labels consistently across all templates:
+
+| Label | Directory | One-line purpose |
+|-------|-----------|-----------------|
+| `Domain — Entity` | `src/domain/` | Pure data model, no dependencies, no solver imports. |
+| `Domain — Value Object` | `src/domain/` | Immutable, self-validating descriptor of a quantity or concept. |
+| `Application — Port` | `src/application/` | Abstract interface the application depends on. |
+| `Application — Use Case` | `src/application/` | Orchestrates one user-facing operation end-to-end. |
+| `Application — Strategy` | `src/application/strategy/` | Pluggable algorithm that produces a result from a request. |
+| `Infrastructure — Adapter` | `src/infrastructure/` | Concrete implementation of a port for a specific technology. |
+| `Controller` | `src/controller/` | Composition root and delivery mechanism (CLI, HTTP, etc.). |
+
+### 8.2 — Architecture-concept docstrings
+
+When a class embodies a software engineering concept that a data scientist may not know
+(port, adapter, strategy, dependency injection, frozen dataclass), the class docstring must
+explain the concept, not just the class's job. Write one paragraph for the concept and one
+for this specific class.
+
+```python
+# Bad — assumes the reader knows what a port is
+class SolverPort(ABC):
+    """Abstract interface for optimization solvers."""
+
+# Good — explains the concept, then applies it to this class
+class SolverPort(ABC):
+    """
+    A port is an abstract interface defined by the application layer to express a dependency
+    without coupling to any concrete implementation. Think of it as a power socket: the wall
+    (application) defines the socket shape; the appliance (infrastructure) must conform to it.
+
+    This port declares the contract that any solver adapter must fulfill. The application layer
+    calls `solve()` on this interface and never imports HiGHS, Gurobi, or any other library
+    directly. Concrete adapters live in src/infrastructure/ and are wired in by the controller.
+    """
+
+    @abstractmethod
+    def solve(self, model: OptimizationModel) -> Solution:
+        ...
+```
+
+Apply the same pattern to these recurring concepts:
+
+- **Frozen dataclass** — explain immutability and why fail-fast validation matters.
+- **Abstract Base Class (ABC)** — explain the contract metaphor before describing the class.
+- **Adapter** — explain that it translates between the application's interface and a library's API.
+- **Strategy pattern** — explain that swappable algorithms share a common interface so the engine
+  can choose between them without knowing their internals.
+- **Use case** — explain that it orchestrates one user-facing operation and should contain no
+  business logic of its own, only coordination.
+
+### 8.3 — Teaching-level inline comments
+
+In a SEFOP template, inline comments must be written for a reader who understands the
+optimization problem but may not recognize the software engineering choice. Explain the
+*why* in terms of the consequences of doing it differently.
+
+```python
+# Bad — states the obvious
+self._solver = solver  # assign solver
+
+# Bad — explains what but not why
+self._solver = solver  # store the injected solver
+
+# Good — explains the design consequence
+# The solver is injected rather than instantiated here so that tests can
+# pass a mock solver without a real HiGHS installation. This is Dependency
+# Injection: the class declares what it needs; the caller decides what to provide.
+self._solver = solver
+```
+
+For mathematical constructs in the optimization layer, always state the math alongside the
+code so a reader can map between the Pyomo expression and the model formulation:
+
+```python
+# Constraint: ∑ w_i · x_i ≤ W
+# Total weight of selected cargo must not exceed the aircraft's weight capacity W.
+# Without this constraint the solver would load an unbounded amount of cargo,
+# which is physically impossible.
+model.weight_limit = Constraint(
+    expr=sum(data.weight[i] * model.x[i] for i in model.I) <= data.capacity_weight
+)
+```
+
+### 8.4 — What NOT to over-explain
+
+Comment-heavy does not mean comment-everything. Even in a teaching template, avoid:
+
+- Restating what a well-named function or variable already says (Rule 1 still applies).
+- Explaining Python syntax (`for i in range(n)` does not need a comment).
+- Repeating the same architecture explanation in every file — state it once in the layer
+  declaration (Section 8.1) and refer the reader there if needed.
+
+The test: *would a data scientist who just finished a Python tutorial need this comment?*
+If yes, include it. If the answer is *only someone who has never seen a for-loop*, skip it.
+
+---
+
+## 9. References
 
 - [PEP 8 — Style Guide for Python Code](https://peps.python.org/pep-0008/) — covers inline comments,
   block comments, and naming conventions.

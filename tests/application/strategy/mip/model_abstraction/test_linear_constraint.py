@@ -13,5 +13,5 @@ def test__linear_constraint__stores_fields_correctly():
     # ASSERT
     assert constraint.name == "weight_limit"
     assert constraint.lhs is expr
-    assert constraint.sign == "<="
+    assert constraint.sign == ConstraintSign.LEQ
     assert constraint.rhs == 5.0

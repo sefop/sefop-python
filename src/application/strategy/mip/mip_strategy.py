@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class MipStrategy(BaseStrategy):
-    """Mixed-Integer Programming solver.
+    """Mixed-Integer Programming Strategy.
 
     Orchestrates a 3-step pipeline: preprocess → optimize → postprocess.
     All solver-technology details are encapsulated in the optimization package.

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 MAX_PRODUCTS_FOR_MIP = 50
 
 
-class Engine:
+class Engine(BaseStrategy):
     """Orchestrates the knapsack optimization pipeline.
 
     Selects a solver strategy based on problem size, runs it, and returns
@@ -53,6 +53,12 @@ class Engine:
             len(request.products),
         )
         return strategy.solve(request)
+
+    def solve(self, request: Request) -> Recommendation | None:
+        # Engine IS-A BaseStrategy via the Composite Strategy pattern: it selects
+        # the right concrete strategy internally, so callers (OptimizationService,
+        # tests) only need to depend on the BaseStrategy port — not on Engine.
+        return self.run(request)
 
     def _select_strategy(self, request: Request) -> BaseStrategy:
         """Choose MIP or greedy heuristic based on number of products."""
