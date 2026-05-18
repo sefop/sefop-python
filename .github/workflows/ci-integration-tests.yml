@@ -1,0 +1,60 @@
+# =============================================================================
+# CI — Integration Tests
+# =============================================================================
+# GitHub Actions workflow for continuous integration (only integration tests).
+#
+# Integration tests verify that our code actually works with the real external
+# solver (HiGHS), not just with mocks. They run slower than unit tests because
+# they invoke the MIP solver engine, but they catch integration bugs that unit
+# tests can't (like solver API misuse, or data transformation errors).
+#
+# This workflow runs on every push and PR to main — same as unit tests.
+# Both workflows run independently and in parallel in GitHub.
+#
+# =============================================================================
+
+# What is this workflow called in the GitHub UI?
+name: CI — Integration Tests
+
+# When should this workflow run?
+# Same triggers as unit tests: every push, every PR to main
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+# What are the jobs in this workflow?
+jobs:
+  # This job's name (shows in the GitHub UI)
+  integration-tests:
+    # Run on a fresh Ubuntu machine, same as unit tests
+    runs-on: ubuntu-latest
+
+    # Steps: same setup as unit tests, but different test command
+    steps:
+      # Step 1: Fetch code
+      - uses: actions/checkout@v4
+
+      # Step 2: Set up Python 3.12
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Step 3: Install dependencies (including highspy)
+      # requirements.txt has `highspy==1.14.0`, which is the Python binding to the
+      # HiGHS solver. On ubuntu-latest, pip downloads the Linux wheel (pre-compiled,
+      # no compilation needed). Installation is fast (~30 seconds).
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Step 4: Run integration tests ONLY
+      # pytest -m "integration" means:
+      #   - Find all tests with @pytest.mark.integration
+      #   - Run ONLY those tests
+      #   - Skip everything else
+      #
+      # The -v flag means "verbose": print each test name and status as it runs.
+      # With only 2 tests, verbose output is helpful for debugging if they fail.
+      # (With 91 unit tests, we don't use -v because the output is too long.)
+      - name: Run integration tests
+        run: pytest -m "integration" -v

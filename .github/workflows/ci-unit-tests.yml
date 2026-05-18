@@ -1,23 +1,78 @@
+# =============================================================================
+# CI — Unit Tests
+# =============================================================================
+# GitHub Actions workflow for continuous integration (only unit tests).
+#
+# A workflow is an automated task that GitHub runs on their servers whenever
+# certain events happen (push, pull request, etc.). This workflow installs
+# dependencies and runs tests that DON'T require external solvers.
+#
+# Why split unit and integration tests?
+#   - Unit tests run fast (milliseconds) because they mock external dependencies
+#   - Integration tests run slow (seconds) because they call the real HiGHS solver
+#   - Fast feedback loop during development is valuable — so unit tests run on
+#     every commit/PR, while integration tests run separately (or on demand)
+#
+# This workflow runs on every push and PR to main.
+# =============================================================================
+
+# What is this workflow called in the GitHub UI?
 name: CI — Unit Tests
 
+# When should this workflow run?
+# This section answers: "what event triggers this automation?"
 on:
+  # Trigger on every push to any branch
+  # Useful for: catching breakage immediately in feature branches
   push:
+
+  # Trigger on pull requests targeting main
+  # Useful for: gating PRs on code quality; prevents merging broken code
   pull_request:
     branches: [main]
 
+# What are the jobs in this workflow?
+# A job is a set of steps that run on a clean virtual machine (called a runner).
+# Each job gets its own fresh environment — no state is shared between runs.
 jobs:
+  # This job's name (shows in the GitHub UI; used in status checks)
   unit-tests:
+    # What kind of machine should this job run on?
+    # "ubuntu-latest" = latest Ubuntu Linux, maintained by GitHub
+    # After each job, the machine is discarded — next job gets a fresh start
+    # This guarantees no leftover state from previous runs
     runs-on: ubuntu-latest
 
+    # A job is a sequence of steps. Each step runs sequentially (one after another).
     steps:
+      # Step 1: Fetch the code from the repository
+      # Why is this needed? The runner doesn't have code yet — it starts empty.
+      # This action checks out the current commit (on push) or PR head (on PR).
       - uses: actions/checkout@v4
+        # @v4 = use major version 4 (patches are automatic; breaking changes require manual upgrade)
+        # Pinning major versions is standard: it prevents unexpected behavior from breaking changes
 
+      # Step 2: Set up Python on the runner
+      # Why? The runner has a default Python (often outdated), so we install the one we want.
+      # This ensures every CI run uses Python 3.12, matching our project's requirement.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # Step 3: Install all dependencies
+      # requirements.txt lists: pytest, pytest-cov, highspy, etc.
+      # We install them fresh each run (no cached state from last run).
+      # Note: We do NOT use `pip install -e .` in CI because pytest's pythonpath setting
+      #       in pyproject.toml already adds src/ to sys.path. The editable install is for
+      #       development (so you can `import cli` from anywhere in your venv).
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Step 4: Run unit tests (exclude integration tests)
+      # pytest -m "not integration" means:
+      #   - Find all tests with @pytest.mark.integration
+      #   - Exclude them from the run
+      # Integration tests require HiGHS (the MIP solver), which makes them slow and fragile
+      # in CI. A separate workflow handles them.
       - name: Run unit tests
         run: pytest -m "not integration"
