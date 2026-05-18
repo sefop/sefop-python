@@ -26,34 +26,42 @@ docs/                   # guides and documentation
 
 ## Installation
 
-Clone the repository:
+### 1. Clone the repository
 ```bash
 git clone https://github.com/sefop/sefop-python-starter.git
 cd sefop-python-starter
 ```
 
-Create a virtual environment with Python 3.12 and activate it:
+### 2. Create a virtual environment
 ```bash
 py -3.12 -m venv .venv
 .venv\Scripts\activate  # On Windows
 # source .venv/bin/activate  # On macOS/Linux
 ```
 
-Install dependencies:
+### 3. Install dependencies and the package
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
+
+The `-e` flag installs the package in **editable mode**, making your source code directly importable. This is the standard Python development practice — no need to set `PYTHONPATH` or reinstall when you edit code.
 
 ---
 
 ## Testing
 
-Run all tests:
+### Run all tests
 ```bash
 pytest
 ```
 
-Run tests by layer:
+Or use the Python module form (recommended to explicitly use your venv):
+```bash
+python pytest
+```
+
+### Run tests by layer
 ```bash
 pytest tests/domain/          # domain unit tests only
 pytest tests/services/        # service tests only
@@ -64,11 +72,38 @@ pytest tests/optimization/    # optimization + MIP tests
 
 ## Usage
 
-Solve a knapsack optimization request:
+### Solve a knapsack optimization request from the CLI (command line interface)
 ```bash
 python -m cli 1  # solve request from data/1/data.json
 python -m cli 2  # solve request from data/2/data.json
 ```
+
+---
+
+## How it works
+
+This project demonstrates **Clean Architecture** applied to optimization:
+
+1. **`domain/`** — Pure business logic (Product, Request, Recommendation) with no external dependencies
+2. **`services/`** — Orchestration and data loading (Engine selects a solver strategy)
+3. **`optimization/`** — Solver implementations:
+   - **Greedy heuristic** — fast, approximate solution for large problems
+   - **MIP solver** — exact optimal solution via HiGHS for small problems
+4. **`cli.py`** — Entry point that loads data and calls the solver
+5. **`dependencies.py`** — Composition root that wires all layers together
+
+The Engine automatically chooses the right solver based on problem size (≤50 products → MIP; larger → greedy).
+
+---
+
+## Development workflow
+
+After `pip install -e .`, your code is live:
+- Edit any file in `src/` → changes are instant (no reinstall)
+- Run tests anytime: `python -m pytest`
+- Run CLI anytime: `python -m cli 1`
+
+This is how professional Python projects work in development mode.
 
 ---
 
