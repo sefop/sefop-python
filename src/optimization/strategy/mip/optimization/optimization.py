@@ -23,7 +23,7 @@ from domain.recommendation import Recommendation
 
 logger = logging.getLogger(__name__)
 
-# Maps solver name strings to adapter classes.
+# Maps solver name strings to solver classes.
 # To add a new solver: create a BaseTechnologySolver subclass and add it here.
 _SOLVER_REGISTRY: dict[str, type[BaseTechnologySolver]] = {
     "highs": HighsSolver,

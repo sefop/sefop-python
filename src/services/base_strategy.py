@@ -5,6 +5,7 @@ through a concrete class like ``HiGHSSolver`` directly. That makes it easy
 to swap one solver for another (e.g., HiGHS → Gurobi) without touching
 any of the calling code.
 """
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
@@ -18,7 +19,7 @@ class BaseStrategy(ABC):
     methods that every solver **must** implement, but says nothing about
     *how*. Any class that inherits from ``BaseStrategy`` is forced to provide
     a ``solve()`` method, so the rest of the system can call ``solve()``
-    without caring whether HiGHS, Gurobi, or a hand-written heuristic is
+    without caring whether a MIP-solver or a handwritten heuristic is
     doing the work behind the scenes.
 
     Implementations provide different solving strategies (MIP, heuristic, etc.).

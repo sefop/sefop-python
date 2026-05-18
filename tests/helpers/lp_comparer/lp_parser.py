@@ -1,4 +1,4 @@
-"""Thin adapter over the ``parse-lp`` library.
+"""Thin wrapper over the ``parse-lp`` library.
 
 This module isolates the rest of the comparer from the concrete parser
 implementation.  Every other module in the ``lp_comparer`` package

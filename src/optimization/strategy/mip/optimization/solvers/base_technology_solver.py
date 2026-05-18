@@ -1,4 +1,4 @@
-"""Abstract interface that every solver adapter must implement.
+"""Abstract interface that every solver implementation must satisfy.
 
 The optimization orchestrator in ``optimization.py`` talks to solvers only
 through this interface. That means you can swap HiGHS for any future solver
@@ -14,13 +14,13 @@ from optimization.strategy.mip.optimization.model_abstraction.optimization_model
 
 
 class BaseTechnologySolver(ABC):
-    """Base class for solver technology adapters.
+    """Base class for solver technology implementations.
 
     Think of this as a *contract* (formally, an Abstract Base Class / ABC):
-    it declares that every solver adapter **must** provide a ``solve(model)``
-    method, but it contains no solving logic itself. This lets the
-    optimization code call ``solver.solve(model)`` without knowing or caring
-    whether the underlying engine is HiGHS, Xpress, or something else.
+    it declares that every solver implementation **must** provide a
+    ``solve(model)`` method, but it contains no solving logic itself. This
+    lets the optimization code call ``solver.solve(model)`` without knowing
+    or caring whether the underlying engine is HiGHS, Xpress, or something else.
 
     To add a new solver, subclass this class and implement ``solve``.
     """

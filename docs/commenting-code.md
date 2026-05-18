@@ -107,8 +107,8 @@ A module docstring should state:
 ```python
 """Solvers for linear and mixed-integer optimization problems.
 
-This module provides solver adapters that implement the Solver
-interface defined in the application layer.
+This module provides solver implementations that satisfy the
+BaseTechnologySolver interface.
 """
 
 import logging
@@ -338,65 +338,64 @@ data scientist who knows optimization but may be new to software engineering pat
 in SEFOP templates carry an extra responsibility: they must explain *why the architecture is
 designed this way*, not just what the code does.
 
-### 8.1 — File-level layer declaration
+### 8.1 — File-level role declaration
 
-Every `.py` file in a SEFOP template must begin with a module docstring that declares which
-Clean Architecture layer it belongs to and explains *why that layer exists*. This is the single
-most important comment in the file — it orients a reader who opens the file cold.
+Every `.py` file in a SEFOP template must begin with a module docstring that describes its
+role in the system and explains *why it exists*. This is the single most important comment
+in the file — it orients a reader who opens the file cold.
 
 ```python
 """
-LAYER: Application — Port (Abstract Interface)
+ROLE: Abstract interface for optimization solvers.
 
-WHY THIS LAYER EXISTS:
-    The application layer defines *what* the system needs without knowing *how* those needs
-    are fulfilled. A port is a contract: 'I need something that can solve an optimization
-    problem; I do not care whether it uses HiGHS, Gurobi, or any other solver.'
+WHY THIS EXISTS:
+    This base class declares the contract any solver must fulfill: a ``solve(model)``
+    method that returns a solution. By depending only on this base class, the
+    optimization pipeline stays completely independent from third-party solver
+    libraries. You can swap HiGHS for any future solver by adding a new subclass —
+    no other code changes.
 
-    By depending only on this interface, the application layer stays completely independent
-    from third-party solver libraries. You can swap the solver by changing one line in the
-    controller — no business logic changes.
-
-WHERE THE IMPLEMENTATION LIVES:
-    Concrete implementations (adapters) live in src/infrastructure/.
-    The controller wires the adapter to this port at startup.
+WHERE IMPLEMENTATIONS LIVE:
+    Concrete solver implementations live in
+    src/optimization/strategy/mip/optimization/solvers/.
 """
 ```
 
-Use the following layer labels consistently across all templates:
+Use the following role labels consistently across all templates:
 
-| Label | Directory | One-line purpose |
-|-------|-----------|-----------------|
-| `Domain — Entity` | `src/domain/` | Pure data model, no dependencies, no solver imports. |
-| `Domain — Value Object` | `src/domain/` | Immutable, self-validating descriptor of a quantity or concept. |
-| `Application — Port` | `src/application/` | Abstract interface the application depends on. |
-| `Application — Use Case` | `src/application/` | Orchestrates one user-facing operation end-to-end. |
-| `Application — Strategy` | `src/application/strategy/` | Pluggable algorithm that produces a result from a request. |
-| `Infrastructure — Adapter` | `src/infrastructure/` | Concrete implementation of a port for a specific technology. |
-| `Controller` | `src/controller/` | Composition root and delivery mechanism (CLI, HTTP, etc.). |
+| Role | Directory | One-line purpose |
+|------|-----------|-----------------|
+| `Entity` | `src/domain/` | Pure data model, no dependencies, no solver imports. |
+| `Value Object` | `src/domain/` | Immutable, self-validating descriptor of a quantity or concept. |
+| `Abstract Base Class` | `src/services/` | Abstract interface that services depend on. |
+| `Orchestrator` | `src/services/` | Orchestrates one user-facing operation end-to-end. |
+| `Strategy` | `src/services/` or `src/optimization/` | Pluggable algorithm that produces a result from a request. |
+| `Implementation` | `src/optimization/` | Concrete solver implementation for a specific technology. |
 
-### 8.2 — Architecture-concept docstrings
+### 8.2 — Software-concept docstrings
 
-When a class embodies a software engineering concept that a data scientist may not know
-(port, adapter, strategy, dependency injection, frozen dataclass), the class docstring must
-explain the concept, not just the class's job. Write one paragraph for the concept and one
-for this specific class.
+When a class embodies a software engineering pattern that a data scientist may not recognize
+(abstract base class, strategy pattern, dependency injection, frozen dataclass), the class
+docstring must explain the pattern, not just the class's job. Write one paragraph for the
+concept and one for this specific class.
 
 ```python
-# Bad — assumes the reader knows what a port is
-class SolverPort(ABC):
+# Bad — assumes the reader knows what an abstract base class is for
+class BaseTechnologySolver(ABC):
     """Abstract interface for optimization solvers."""
 
-# Good — explains the concept, then applies it to this class
-class SolverPort(ABC):
+# Good — explains the pattern, then applies it to this class
+class BaseTechnologySolver(ABC):
     """
-    A port is an abstract interface defined by the application layer to express a dependency
-    without coupling to any concrete implementation. Think of it as a power socket: the wall
-    (application) defines the socket shape; the appliance (infrastructure) must conform to it.
+    This is an abstract base class (ABC) — a contract pattern: it declares what methods must
+    exist without providing their implementation. Think of it as a power socket: the interface
+    (BaseTechnologySolver) defines the socket shape; any concrete implementation (e.g., HighsSolver)
+    must conform to it.
 
-    This port declares the contract that any solver adapter must fulfill. The application layer
-    calls `solve()` on this interface and never imports HiGHS, Gurobi, or any other library
-    directly. Concrete adapters live in src/infrastructure/ and are wired in by the controller.
+    This base class declares that any solver implementation must provide a ``solve(model)`` method
+    that returns a solution. The optimization pipeline calls ``solver.solve()`` without needing to
+    know or care whether the underlying engine is HiGHS, Gurobi, or any other solver. Concrete
+    solver implementations live in src/optimization/strategy/mip/optimization/solvers/.
     """
 
     @abstractmethod
@@ -408,10 +407,9 @@ Apply the same pattern to these recurring concepts:
 
 - **Frozen dataclass** — explain immutability and why fail-fast validation matters.
 - **Abstract Base Class (ABC)** — explain the contract metaphor before describing the class.
-- **Adapter** — explain that it translates between the application's interface and a library's API.
 - **Strategy pattern** — explain that swappable algorithms share a common interface so the engine
   can choose between them without knowing their internals.
-- **Use case** — explain that it orchestrates one user-facing operation and should contain no
+- **Orchestrator** — explain that it sequences one operation end-to-end and should contain no
   business logic of its own, only coordination.
 
 ### 8.3 — Teaching-level inline comments

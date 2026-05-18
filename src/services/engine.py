@@ -59,7 +59,7 @@ class Engine(BaseStrategy):
     def solve(self, request: Request) -> Recommendation | None:
         # Engine IS-A BaseStrategy via the Composite Strategy pattern: it selects
         # the right concrete strategy internally, so callers (OptimizationService,
-        # tests) only need to depend on the BaseStrategy port — not on Engine.
+        # tests) only need to depend on the BaseStrategy base class — not on Engine.
         return self.run(request)
 
     def _select_strategy(self, request: Request) -> BaseStrategy:

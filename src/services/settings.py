@@ -1,9 +1,8 @@
 """Configuration values for the application.
 
-This module lives in the infrastructure layer because configuration comes from
-the external environment (env vars, defaults). The rest of the application
-never reads environment variables directly — it reads from Settings instead,
-so configuration is centralised and easy to change.
+Configuration comes from the external environment (env vars, defaults).
+The rest of the application never reads environment variables directly — it
+reads from Settings instead, so configuration is centralised and easy to change.
 """
 from __future__ import annotations
 
@@ -19,7 +18,7 @@ class Settings:
     sensible default. This means data scientists can point the CLI at a
     different data folder without touching the code:
 
-        SEFOP_FOLDER_PATH=my_data python -m controller.cli 1
+        SEFOP_FOLDER_PATH=my_data python -m cli 1
     """
 
     # Root directory where request subfolders live (data/1/data.json, data/2/data.json, …)

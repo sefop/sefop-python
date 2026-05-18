@@ -12,7 +12,7 @@ before downstream symptoms (e.g. a constraint referencing that variable).
 from pathlib import Path
 
 from tests.helpers.lp_comparer.models import LpDifference
-from tests.helpers.lp_comparer.parser_adapter import (
+from tests.helpers.lp_comparer.lp_parser import (
     ConstraintInfo,
     ObjectiveInfo,
     ParsedLpModel,

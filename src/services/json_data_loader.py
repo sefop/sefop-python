@@ -1,8 +1,8 @@
-"""Infrastructure adapter: loads Request data from a JSON file on disk.
+"""Loads Request data from a JSON file on disk.
 
 This module is the only place in the codebase that knows about JSON files.
-The rest of the system talks to the abstract ``BaseDataLoader`` port; this
-class is one concrete plug-in for that port.
+The rest of the system talks to the abstract ``BaseDataLoader`` base class;
+this is one concrete implementation of it.
 """
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from domain.request import Request
 
 
 class JsonDataLoader(BaseDataLoader):
-    """File-based adapter that reads JSON data files and returns domain objects.
+    """Reads JSON data files and returns domain objects.
 
     Design note — why camelCase in JSON, not snake_case:
       JSON files use camelCase (e.g. ``maxWeightKg``, ``priceUsd``) because
@@ -23,10 +23,10 @@ class JsonDataLoader(BaseDataLoader):
       This class explicitly maps every camelCase key to its Python snake_case
       equivalent (e.g. ``maxWeightKg`` → ``max_weight_kg``).
 
-      This mapping is intentional and belongs here. It is the infrastructure
-      adapter's job to translate between the external world's conventions and
-      the domain model's conventions. Domain objects (``Request``, ``Product``)
-      never know about JSON — they only speak Python.
+      This mapping is intentional and belongs here. This class is the only place
+      that knows about JSON — its job is to translate between the external
+      world's conventions and the domain model's conventions. Domain objects
+      (``Request``, ``Product``) never know about JSON — they only speak Python.
     """
 
     def __init__(self, folder_path: str) -> None:
@@ -37,11 +37,10 @@ class JsonDataLoader(BaseDataLoader):
     def load(self, request_id: str) -> Request | None:
         """Load a Request from ``{folder_path}/{request_id}/data.json``.
 
-        Returns None when the file does not exist — matching the port contract
-        that callers interpret as "request not found".
-        Raises ValueError when the file exists but its content is invalid,
-        so data scientists catch bad data files early rather than silently
-        getting a None they cannot debug.
+        Returns None when the file does not exist — callers interpret None as
+        "request not found". Raises ValueError when the file exists but its
+        content is invalid, so data scientists catch bad data files early
+        rather than silently getting a None they cannot debug.
         """
         path = self._folder_path / request_id / "data.json"
         if not path.exists():

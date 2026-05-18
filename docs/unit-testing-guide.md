@@ -52,17 +52,18 @@ Maintain a **1:1 mapping** between production modules and test modules. Each pro
 own test file with a matching name prefixed by `test_`.
 
 ```
-app/                          tests/
+src/                          tests/
 ├── domain/                   ├── domain/
-│   ├── aircraft.py           │   ├── test_aircraft.py
-│   ├── cargo_request.py      │   ├── test_cargo_request.py
+│   ├── product.py            │   ├── test_product.py
+│   ├── request.py            │   ├── test_request.py
 │   └── recommendation.py     │   └── test_recommendation.py
-├── application/              ├── application/
+├── services/                 ├── services/
 │   ├── engine.py             │   ├── test_engine.py
-│   └── solver/               │   └── solver/
-│       └── mip_strategy.py     │       └── test_mip_strategy.py
-└── infrastructure/           └── infrastructure/
-    └── file_loader.py            └── test_file_loader.py
+│   └── json_data_loader.py   │   └── test_json_data_loader.py
+└── optimization/             └── optimization/
+    └── strategy/                 └── strategy/
+        └── mip/                      └── mip/
+            └── mip_strategy.py           └── test_mip_strategy.py
 ```
 
 Rules:
@@ -110,10 +111,10 @@ If a refactor breaks this test without changing behavior, the test was testing t
 
 ## 5. Humble Object pattern
 
-When code is hard to test (e.g., controllers, message consumers, database access), split it:
+When code is hard to test (e.g., file I/O, message consumers, database access), split it:
 
 - **Humble Object**: thin shell with no logic, hard to test, skip unit tests.
-- **Extracted logic**: pure logic with no infrastructure, easy to test.
+- **Extracted logic**: pure logic with no I/O, easy to test.
 
 ```python
 # Hard to test — logic tangled with I/O
@@ -321,13 +322,13 @@ pytest
 
 ## 10. Mocking guidance
 
-Use mocking sparingly and only at infrastructure boundaries. Do not mock domain logic or value
+Use mocking sparingly and only at I/O boundaries. Do not mock domain logic or value
 objects — those should be tested with real instances.
 
 ### When to mock
 
 - **External services**: HTTP clients, database connections, email senders.
-- **Infrastructure adapters**: File system access, third-party SDK calls.
+- **I/O and external calls**: File system access, third-party SDK calls.
 - **Time-dependent code**: `datetime.now()`, `time.time()`.
 
 ### When not to mock

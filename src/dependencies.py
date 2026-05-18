@@ -1,7 +1,7 @@
 """Composition root — assembles the full optimization pipeline.
 
 This is the one place in the codebase that knows about every layer. All other
-modules depend only on abstractions (ports); only this module wires concrete
+modules depend only on abstractions; only this module wires concrete
 implementations to those abstractions.
 
 Benefit: swapping JsonDataLoader for a database loader, or HiGHS for another

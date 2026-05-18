@@ -1,7 +1,7 @@
-"""Solver adapter that delegates to the HiGHS optimizer via highspy.
+"""HiGHS solver implementation that delegates to the optimizer via highspy.
 
 HiGHS is an open-source, high-performance solver for LP and MIP problems.
-This adapter translates an OptimizationModel into the highspy Python API
+This class translates an OptimizationModel into the highspy Python API
 directly — no Pyomo dependency. It is the only file in this project that
 imports highspy.
 """
@@ -31,7 +31,7 @@ _FEASIBLE_STATUSES = {
 
 
 class HighsSolver(BaseTechnologySolver):
-    """Solver adapter for HiGHS using the highspy Python bindings.
+    """HiGHS solver implementation using the highspy Python bindings.
 
     Translates the solver-agnostic ``OptimizationModel`` into HiGHS calls:
     variables → ``addVar`` / ``changeColIntegrality``,
