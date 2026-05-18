@@ -1,7 +1,7 @@
 import pytest
 from domain.product import Product
 from domain.request import Request
-from optimization.strategy.mip.preprocess.preprocess import PreProcess
+from optimization.preprocessing import PreProcess
 
 
 @pytest.fixture

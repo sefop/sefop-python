@@ -18,7 +18,7 @@ from optimization.strategy.mip.optimization.components.variable_select_product i
 from optimization.strategy.mip.optimization.model_abstraction.optimization_model import ObjectiveSense, OptimizationModel
 from optimization.strategy.mip.optimization.solvers.base_technology_solver import BaseTechnologySolver
 from optimization.strategy.mip.optimization.solvers.highs_solver import HighsSolver
-from optimization.strategy.mip.preprocess.pre_processed_data import PreProcessedData
+from optimization.pre_processed_data import PreProcessedData
 from domain.recommendation import Recommendation
 
 logger = logging.getLogger(__name__)

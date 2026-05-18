@@ -1,16 +1,16 @@
-"""Post-processing stage that refines the raw MIP solution.
+"""Post-processing stage that refines optimizer results.
 
-This module sits at the end of the MIP solver pipeline.  The default
+This module sits at the end of the optimization pipeline. The default
 implementation is intentionally a pass-through — override it to add
-solution validation, result enrichment, rounding, or reporting without
-touching the optimizer itself.
+solution validation, result enrichment, or reporting without touching
+the optimizer itself.
 """
 
 from domain.recommendation import Recommendation
 
 
 class PostProcess:
-    """Post-processing step after MIP solution extraction.
+    """Post-processing step after strategy execution.
 
     Override this class to add custom post-processing logic such as
     solution validation, result enrichment, or reporting.

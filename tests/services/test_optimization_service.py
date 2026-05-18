@@ -1,72 +1,35 @@
-from unittest.mock import MagicMock
+"""Integration tests for OptimizationService."""
 
 import pytest
-from domain.product import Product
-from domain.recommendation import Recommendation
-from domain.request import Request
-from services.base_data_loader import BaseDataLoader
-from services.base_strategy import BaseStrategy
+
+from services.json_data_loader import JsonDataLoader
 from services.optimization_service import OptimizationService
 
 
-@pytest.fixture
-def banana() -> Product:
-    return Product(name="banana", price_usd=0.5, weight_kg=0.12, calories=89)
-
-
-@pytest.fixture
-def request_(banana) -> Request:
-    return Request(max_weight_kg=5.0, max_budget_usd=10.0, products=[banana])
-
-
-@pytest.fixture
-def recommendation(request_, banana) -> Recommendation:
-    return Recommendation(request=request_, quantities={banana: 1})
-
-
-def test__optimization_service__when_loader_returns_none__returns_failure():
-    # ARRANGE
-    loader = MagicMock(spec=BaseDataLoader)
-    loader.load.return_value = None
-    strategy = MagicMock(spec=BaseStrategy)
-    service = OptimizationService(request_loader=loader, strategy=strategy)
+@pytest.mark.integration
+def test__optimization_service__when_request_exists__returns_success():
+    """ARRANGE: Load a real request from data/1/data.json."""
+    loader = JsonDataLoader(folder_path="data")
+    service = OptimizationService(request_loader=loader)
 
     # ACT
-    response = service.solve("req-1")
+    response = service.solve("1")
 
-    # ASSERT
-    assert response.status == "FAILURE"
-    assert "req-1" in response.message
-    strategy.solve.assert_not_called()
+    # ASSERT — The service should successfully load and optimize the request
+    assert response.status == "SUCCESS"
+    assert response.recommendation is not None
+    assert response.recommendation.total_calories > 0
 
 
-def test__optimization_service__when_strategy_returns_none__returns_failure(request_):
-    # ARRANGE
-    loader = MagicMock(spec=BaseDataLoader)
-    loader.load.return_value = request_
-    strategy = MagicMock(spec=BaseStrategy)
-    strategy.solve.return_value = None
-    service = OptimizationService(request_loader=loader, strategy=strategy)
+def test__optimization_service__when_request_not_found__returns_failure():
+    """ARRANGE: Attempt to load a request ID that doesn't exist."""
+    loader = JsonDataLoader(folder_path="data")
+    service = OptimizationService(request_loader=loader)
 
     # ACT
-    response = service.solve("req-1")
+    response = service.solve("nonexistent-id-999")
 
-    # ASSERT
+    # ASSERT — Should return a FAILURE status with an appropriate message
     assert response.status == "FAILURE"
     assert response.recommendation is None
-
-
-def test__optimization_service__when_strategy_succeeds__returns_success(request_, recommendation):
-    # ARRANGE
-    loader = MagicMock(spec=BaseDataLoader)
-    loader.load.return_value = request_
-    strategy = MagicMock(spec=BaseStrategy)
-    strategy.solve.return_value = recommendation
-    service = OptimizationService(request_loader=loader, strategy=strategy)
-
-    # ACT
-    response = service.solve("req-1")
-
-    # ASSERT
-    assert response.status == "SUCCESS"
-    assert response.recommendation is recommendation
+    assert "nonexistent-id-999" in response.message

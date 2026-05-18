@@ -1,6 +1,7 @@
 import pytest
 from domain.product import Product
 from domain.request import Request
+from optimization.pre_processed_data import PreProcessedData
 from optimization.strategy.mip.mip_strategy import MipStrategy
 
 
@@ -21,7 +22,8 @@ def test__mip_strategy__when_request_is_solvable__returns_recommendation(banana,
     strategy = MipStrategy()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is not None
@@ -38,7 +40,8 @@ def test__mip_strategy__when_no_product_fits__returns_none():
     strategy = MipStrategy()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is None

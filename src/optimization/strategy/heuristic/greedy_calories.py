@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from math import floor
 
-from services.base_strategy import BaseStrategy
+from optimization.base_strategy import BaseStrategy
+from optimization.pre_processed_data import PreProcessedData
 from domain.recommendation import Recommendation
-from domain.request import Request
 
 
 class GreedyCalories(BaseStrategy):
@@ -21,16 +21,17 @@ class GreedyCalories(BaseStrategy):
     in practice for the calorie-maximisation objective.
     """
 
-    def solve(self, request: Request) -> Recommendation | None:
+    def solve(self, data: PreProcessedData) -> Recommendation | None:
         """Greedily select products ranked by calories per kg.
 
         Args:
-            request: The knapsack request with products and constraints.
+            data: The preprocessed knapsack data with products and constraints.
 
         Returns:
             A Recommendation with the selected quantities, or None if no
             product fits within the weight and budget constraints.
         """
+        request = data.request
         sorted_products = sorted(
             request.products,
             key=lambda p: p.calories / p.weight_kg,

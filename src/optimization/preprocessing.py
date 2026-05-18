@@ -1,4 +1,4 @@
-"""Preprocessing stage that prepares request data for the MIP model.
+"""Preprocessing stage that prepares request data for optimization strategies.
 
 All products are already validated by the domain layer (Request.__post_init__
 ensures positive weight, price, and calories and no duplicates), so
@@ -9,12 +9,12 @@ touching the optimizer.
 
 from __future__ import annotations
 
-from optimization.strategy.mip.preprocess.pre_processed_data import PreProcessedData
+from optimization.pre_processed_data import PreProcessedData
 from domain.request import Request
 
 
 class PreProcess:
-    """Preprocessing step before MIP model construction.
+    """Preprocessing step before strategy execution.
 
     Default implementation: wrap the request in PreProcessedData unchanged.
     Override to add data enrichment, filtering, or parameter tuning.

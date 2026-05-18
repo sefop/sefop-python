@@ -1,6 +1,7 @@
 import pytest
 from domain.product import Product
 from domain.request import Request
+from optimization.pre_processed_data import PreProcessedData
 from optimization.strategy.heuristic.greedy_calories import GreedyCalories
 
 
@@ -21,7 +22,8 @@ def test__greedy_calories__when_no_product_fits__returns_none():
     strategy = GreedyCalories()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is None
@@ -33,7 +35,8 @@ def test__greedy_calories__picks_maximum_feasible_quantity(banana):
     strategy = GreedyCalories()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is not None
@@ -50,7 +53,8 @@ def test__greedy_calories__falls_through_to_next_product_when_primary_is_exhaust
     strategy = GreedyCalories()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is not None
@@ -67,7 +71,8 @@ def test__greedy_calories__picks_highest_calorie_density_first(banana, chips):
     strategy = GreedyCalories()
 
     # ACT
-    result = strategy.solve(request)
+    data = PreProcessedData(request=request)
+    result = strategy.solve(data)
 
     # ASSERT
     assert result is not None

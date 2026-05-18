@@ -1,23 +1,22 @@
-"""Composition root — assembles the full optimization pipeline.
+"""Composition root — assembles the optimization pipeline.
 
-This is the one place in the codebase that knows about every layer. All other
-modules depend only on abstractions; only this module wires concrete
-implementations to those abstractions.
-
-Benefit: swapping JsonDataLoader for a database loader, or HiGHS for another
-solver, is a one-line change here — nothing else needs to change.
+This is the one place in the codebase that wires together external
+dependencies. Swapping JsonDataLoader for a database loader, or adjusting
+the Engine's strategy selection threshold, is a one-line change here.
 """
 from __future__ import annotations
 
-from services.engine import Engine
 from services.optimization_service import OptimizationService
 from services.json_data_loader import JsonDataLoader
 from services.settings import Settings
 
 
 def create_optimization_service() -> OptimizationService:
-    """Build and return a fully-wired OptimizationService."""
+    """Build and return a fully-configured OptimizationService.
+
+    The service creates its own Engine internally. The data loader is the
+    only external dependency that needs to be wired.
+    """
     settings = Settings()
     loader = JsonDataLoader(folder_path=settings.folder_path)
-    engine = Engine()
-    return OptimizationService(request_loader=loader, strategy=engine)
+    return OptimizationService(request_loader=loader)

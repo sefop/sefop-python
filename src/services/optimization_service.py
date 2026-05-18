@@ -1,32 +1,30 @@
 """Orchestrates the full "solve a knapsack request" workflow.
 
 This is the main entry point that calling code (e.g., a CLI command) uses to
-run an optimization. It coordinates loading data and running the solver, so
-callers don't need to manage those steps themselves.
+run an optimization. It coordinates loading data, running the solver, and
+returning a response, so callers don't need to manage those steps themselves.
 """
 
 import logging
 
 from services.base_data_loader import BaseDataLoader
-from services.base_strategy import BaseStrategy
 from services.optimization_response import OptimizationResponse
+from optimization.engine import Engine
 
 logger = logging.getLogger(__name__)
 
 
 class OptimizationService:
-    """Orchestrates the "load → solve → respond" pipeline for one request.
+    """Orchestrates the "load → optimize → respond" pipeline for one request.
 
-    In software engineering this is called a *use case* — a single,
-    self-contained action the system offers to the outside world. Here the
-    action is: "given a request ID, fetch the data, run the solver, and
-    return a result." The service itself contains no optimization math; it
-    just wires together a data loader and a strategy.
+    A use case: given a request ID, fetch the data, run the optimization via
+    the Engine, and return a response. The service creates the Engine
+    internally and coordinates data loading with solving.
     """
 
-    def __init__(self, request_loader: BaseDataLoader, strategy: BaseStrategy) -> None:
+    def __init__(self, request_loader: BaseDataLoader) -> None:
         self._request_loader = request_loader
-        self._strategy = strategy
+        self._engine = Engine()
 
     def solve(self, request_id: str) -> OptimizationResponse:
         """Load a request and run the optimization pipeline.
@@ -44,7 +42,7 @@ class OptimizationService:
             logger.warning("Request not found: %s", request_id)
             return OptimizationResponse.failure(f"Request '{request_id}' not found")
 
-        recommendation = self._strategy.solve(request)
+        recommendation = self._engine.solve(request)
         if recommendation is None:
             logger.warning("No feasible solution for request: %s", request_id)
             return OptimizationResponse.failure("No feasible solution found")
