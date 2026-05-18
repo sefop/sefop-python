@@ -56,10 +56,16 @@ The `-e` flag installs the package in **editable mode**, making your source code
 pytest
 ```
 
-Or use the Python module form (recommended to explicitly use your venv):
+### Run unit tests only
 ```bash
-python pytest
+pytest -m "not integration"
 ```
+
+### Run integration tests only
+```bash
+pytest -m integration
+```
+
 
 ### Run tests by layer
 ```bash
