@@ -1,4 +1,4 @@
-"""Command-line interface for the knapsack optimiser.
+"""Command-line interface for the knapsack optimizer.
 
 This is the delivery mechanism for the CLI. Its only job is to:
   1. Parse the command-line arguments (which request to solve).

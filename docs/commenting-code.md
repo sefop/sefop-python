@@ -5,7 +5,7 @@
 ## 1. General Rules
 
 Good comments capture what the code cannot express: *why* a design decision was made, what constraints
-exist, and what non-obvious behaviour a caller must understand. Restating the code in prose is not a
+exist, and what non-obvious behavior a caller must understand. Restating the code in prose is not a
 comment — it is noise. Never repeat in a comment the same words that make up the name of the thing
 being described — if the name already says it, the comment adds nothing.
 
