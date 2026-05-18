@@ -1,25 +1,116 @@
+# =============================================================================
+# pyproject.toml — Python project configuration for SEFOP Python Starter
+# =============================================================================
+# This file tells Python how to build, test, and run this project.
+# It replaces the old setup.py, setup.cfg, and requirements.txt approach.
+#
+# Key concepts:
+# - [build-system]: How to package this project for distribution
+# - [project]: Metadata (name, version, dependencies)
+# - [tool.*]: Configuration for specific tools (pytest, black, setuptools)
+# =============================================================================
+
+# =============================================================================
+# [build-system] — How Python builds this package
+# =============================================================================
+# When you run `pip install .` or `pip install -e .`, Python uses this section
+# to know how to build the package from source.
 [build-system]
 requires = ["setuptools>=68"]
+# setuptools: the standard Python packaging tool, bundled with pip
+# It knows how to find your code, create a .whl file, and install it.
 build-backend = "setuptools.build_meta"
+# build_meta: tells setuptools to use the modern PEP 517 build backend
 
+# =============================================================================
+# [project] — Package metadata
+# =============================================================================
+# This section describes YOUR project so Python knows what to install.
 [project]
 name = "sefop-python-starter"
-version = "1.0.0"
-requires-python = ">=3.12"
+# The name people use when they `pip install sefop-python-starter`.
+# Python converts spaces to hyphens; internally it becomes "sefop_python_starter".
 
+version = "1.0.0"
+# Semantic versioning: MAJOR.MINOR.PATCH
+# - MAJOR: breaking changes (old code stops working)
+# - MINOR: new features (backwards compatible)
+# - PATCH: bug fixes (no new features)
+
+requires-python = ">=3.12"
+# This project requires Python 3.12 or newer.
+# If someone with Python 3.11 tries `pip install .`, pip will reject it.
+
+# =============================================================================
+# [tool.setuptools] — Configuration for the setuptools package builder
+# =============================================================================
+# Setuptools needs to know where your source code lives.
 [tool.setuptools]
 package-dir = {"" = "src"}
+# "Where is the root package?"
+# Answer: in the "src/" folder, not at the project root.
+# This is why we can do `from domain import Product` instead of `from src.domain ...`
 
 [tool.setuptools.packages.find]
 where = ["src"]
+# "Look in the src/ folder and automatically find all Python packages."
+# A package is any folder with an __init__.py file.
+# This discovers: domain/, services/, optimization/, and all nested subfolders.
 
+# =============================================================================
+# [tool.pytest.ini_options] — Configuration for the pytest test runner
+# =============================================================================
+# Pytest needs to know where your tests are and what Python paths to use.
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src", "."]  # src/ → imports start from inside src/; "." → project root on sys.path so tests.helpers.* is importable
+# "Look for tests in the tests/ folder, not elsewhere."
+
+pythonpath = ["src", "."]
+# Add to Python's import path:
+#   - "src" → makes `from domain import Product` work in tests (inside src/domain/)
+#   - "." → makes `from tests.helpers import ...` work (tests/ is at project root)
+# Why needed: pytest.ini_options only affects pytest, not `python -m cli` directly.
+# After `pip install -e .`, the pythonpath setting becomes optional (but keeps working).
+
 markers = [
     "integration: marks tests that require an external solver (deselect with '-m not integration')",
 ]
+# A marker is a pytest label you can add to tests with @pytest.mark.integration.
+# This lets you run subsets of tests:
+#   pytest                          # run all tests
+#   pytest -m integration           # run ONLY integration tests (slower)
+#   pytest -m "not integration"     # run ONLY unit tests (faster)
+# Why separate them: integration tests might be slower, and you may want them to separate them from your unit tests (which should be fast)
 
+# =============================================================================
+# [tool.black] — Configuration for the black code formatter
+# =============================================================================
+# Black automatically formats Python code to look consistent.
+# Run: `black src tests` to format all your code.
 [tool.black]
-line-length = 88
+line-length = 120
+# "Don't let any line get longer than this parameter."
+# This is black's default; shorter lines are easier to read.
+
 target-version = ["py312"]
+# "I'm writing code for Python 3.12."
+# Black will use Python 3.12 syntax (no syntax from 3.13 that 3.12 doesn't support).
+
+# =============================================================================
+# Why this structure? (for data scientists new to Python packaging)
+# =============================================================================
+# Before pyproject.toml, projects used separate files:
+#   - setup.py (how to build)
+#   - setup.cfg (package metadata)
+#   - requirements.txt (dependencies to pip install)
+#   - tox.ini or pytest.ini (test config)
+#   - .flake8 (linting config)
+# This was messy and hard to understand.
+#
+# pyproject.toml unifies everything into ONE file using TOML (a human-friendly format).
+# All Python tools know to look here first.
+#
+# After you run `pip install -e .` once, Python can find your code anywhere in your
+# virtual environment. No PYTHONPATH, no sys.path manipulation, no magic.
+# This is how real Python projects work.
+# =============================================================================

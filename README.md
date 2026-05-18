@@ -100,7 +100,7 @@ The Engine automatically chooses the right solver based on problem size (≤50 p
 
 After `pip install -e .`, your code is live:
 - Edit any file in `src/` → changes are instant (no reinstall)
-- Run tests anytime: `python -m pytest`
+- Run tests anytime: `python pytest`
 - Run CLI anytime: `python -m cli 1`
 
 This is how professional Python projects work in development mode.
